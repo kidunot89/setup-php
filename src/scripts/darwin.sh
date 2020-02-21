@@ -20,7 +20,7 @@ add_log() {
 remove_extension() {
   extension=$1
   sudo sed -i '' "/$extension/d" "$ini_file"
-  sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
+  sudo rm -rf "$ext_dir"/"$extension".so 
 }
 
 # Function to setup extensions
@@ -34,11 +34,11 @@ add_extension() {
     add_log "$tick" "$extension" "Enabled"
   elif ! php -m | grep -i -q -w "$extension"; then
     if [[ "$version" =~ $old_versions ]]; then
-      (sudo port install php"$nodot_version"-"$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
-      (eval "$install_command" >/dev/null 2>&1 && echo "$prefix=$ext_dir/$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Installed and enabled") ||
+      (sudo port install php"$nodot_version"-"$extension"  && add_log "$tick" "$extension" "Installed and enabled") ||
+      (eval "$install_command"  && echo "$prefix=$ext_dir/$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Installed and enabled") ||
       add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
     else
-      (eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
+      (eval "$install_command"  && add_log "$tick" "$extension" "Installed and enabled") ||
       add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
     fi
   fi
@@ -89,7 +89,7 @@ add_tool() {
   url=$1
   tool=$2
   if [ "$tool" = "composer" ]; then
-    brew install composer >/dev/null 2>&1
+    brew install composer 
     composer -q global config process-timeout 0
     add_log "$tick" "$tool" "Added"
   else
@@ -102,12 +102,12 @@ add_tool() {
     if [ "$status_code" = "200" ]; then
       sudo chmod a+x "$tool_path"
       if [ "$tool" = "phive" ]; then
-        add_extension curl "sudo pecl install -f curl" extension >/dev/null 2>&1
-        add_extension mbstring "sudo pecl install -f mbstring" extension >/dev/null 2>&1
-        add_extension xml "sudo pecl install -f xml" extension >/dev/null 2>&1
+        add_extension curl "sudo pecl install -f curl" extension 
+        add_extension mbstring "sudo pecl install -f mbstring" extension 
+        add_extension xml "sudo pecl install -f xml" extension 
       elif [ "$tool" = "cs2pr" ]; then
         sudo sed -i '' 's/exit(9)/exit(0)/' "$tool_path"
-        tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp" >/dev/null 2>&1 && sudo mv "$tool_path.tmp" "$tool_path"
+        tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp"  && sudo mv "$tool_path.tmp" "$tool_path"
         sudo chmod a+x "$tool_path"
       fi
       add_log "$tick" "$tool" "Added"
@@ -123,7 +123,7 @@ add_composer_tool() {
   release=$2
   prefix=$3
   (
-    composer global require "$prefix$release" >/dev/null 2>&1 &&
+    composer global require "$prefix$release"  &&
     sudo ln -sf "$(composer -q global config home)"/vendor/bin/"$tool" /usr/local/bin/"$tool" &&
     add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
@@ -133,9 +133,9 @@ add_composer_tool() {
 configure_pecl() {
   if [[ ! "$version" =~ $old_versions ]]; then
     for tool in pear pecl; do
-      sudo "$tool" config-set php_ini "$ini_file" >/dev/null 2>&1
-      sudo "$tool" config-set auto_discover 1 >/dev/null 2>&1
-      sudo "$tool" channel-update "$tool".php.net >/dev/null 2>&1
+      sudo "$tool" config-set php_ini "$ini_file" 
+      sudo "$tool" config-set auto_discover 1 
+      sudo "$tool" channel-update "$tool".php.net 
     done
   fi
 }
@@ -183,10 +183,10 @@ port_setup_php() {
 setup_php() {
   action=$1
   step_log "Setup PHP"
-  export HOMEBREW_NO_INSTALL_CLEANUP=TRUE >/dev/null 2>&1
-  brew tap shivammathur/homebrew-php >/dev/null 2>&1
-  brew "$action" shivammathur/php/php@"$version" >/dev/null 2>&1
-  brew link --force --overwrite php@"$version" >/dev/null 2>&1
+  export HOMEBREW_NO_INSTALL_CLEANUP=TRUE 
+  brew tap shivammathur/homebrew-php 
+  brew "$action" shivammathur/php/php@"$version" 
+  brew link --force --overwrite php@"$version" 
 }
 
 # Variables
@@ -203,12 +203,12 @@ if [[ "$version" =~ $old_versions ]]; then
   export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
   export TERM=xterm
   step_log "Setup Macports"
-  add_macports >/dev/null 2>&1
+  add_macports 
   add_log "$tick" "Macports" "Installed"
-  sync_macports >/dev/null 2>&1
+  sync_macports 
   add_log "$tick" "Macports" "Synced"
   step_log "Setup PHP"
-  port_setup_php $nodot_version >/dev/null 2>&1
+  port_setup_php $nodot_version 
   status="Installed"
 elif [ "$existing_version" != "$version" ]; then
   setup_php "install"

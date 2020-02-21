@@ -117,9 +117,9 @@ Function Add-Tool() {
     } catch { }
   }
   if($tool -eq "phive") {
-    Add-Extension curl >$null 2>&1
-    Add-Extension mbstring >$null 2>&1
-    Add-Extension xml >$null 2>&1
+    Add-Extension curl 
+    Add-Extension mbstring 
+    Add-Extension xml 
   } elseif($tool -eq "cs2pr") {
     (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
   } elseif($tool -eq "composer") {
@@ -200,7 +200,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
     $version = 'master'
   }
 
-  Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
+  Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force 
 } else {
   if((Test-Path env:update) -and $env:update -eq 'true') {
     Update-Php $php_dir > $null 2>&1
@@ -213,8 +213,8 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 $installed = Get-Php -Path $php_dir
 Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
 if($version -lt "5.5") {
-  Add-Extension openssl >$null 2>&1
-  Add-Extension curl >$null 2>&1
+  Add-Extension openssl 
+  Add-Extension curl 
 } else {
   Enable-PhpExtension -Extension openssl, curl, opcache -Path $php_dir
 }
